@@ -2,12 +2,13 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Shaquib AI | Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
-        body { background: #000000; color: #fff; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        /* 100vh ki jagah 100dvh use kiya taaki mobile nav bar ke piche na chhhupe */
+        body { background: #000000; color: #fff; display: flex; justify-content: center; height: 100dvh; overflow: hidden; }
         .chat-container { width: 100%; max-width: 500px; height: 100%; display: flex; flex-direction: column; position: relative; background: #000; }
         
         /* Snapchat Style Header */
@@ -43,8 +44,8 @@
 
         .typing { font-size: 0.8rem; color: #888; margin: 0 20px 10px; display: none; font-style: italic; }
 
-        /* Snapchat Style Input Area */
-        .input-area { padding: 10px 15px 20px; background: #000; display: flex; align-items: center; border-top: 1px solid #1a1a1a; }
+        /* Snapchat Style Input Area - Niche thodi aur padding de di taaki upar uth jaye */
+        .input-area { padding: 15px 15px 35px; background: #000; display: flex; align-items: center; border-top: 1px solid #1a1a1a; }
         .input-box { flex: 1; display: flex; align-items: center; background: #262628; border-radius: 30px; padding: 5px 15px; gap: 10px; }
         input { flex: 1; background: transparent; border: none; padding: 12px 0; color: white; outline: none; font-size: 1rem; }
         input::placeholder { color: #888; }
@@ -83,21 +84,20 @@
 </div>
 
 <script>
-    // TERA NAYA GOOGLE SCRIPT LINK
+    // TERA WAHI GOOGLE SCRIPT LINK
     const scriptURL = "https://script.google.com/macros/s/AKfycbz-RF-BT4ne3EiruSOmeUZT0r6M3aGRwCWefrGzjHbqeJapdk7LN6N_txnsYSvTPjjc/exec";
     
     const form = document.getElementById('chat-form');
     const chatBox = document.getElementById('chat-box');
     const typingStatus = document.getElementById('typing-status');
 
-    // Naya function avatar aur Snapchat bubble ke sath
     function addMessage(text, sender) {
         const wrapper = document.createElement('div');
         wrapper.className = `msg-wrapper ${sender}`;
         
         const avatar = document.createElement('div');
         avatar.className = 'avatar';
-        avatar.innerText = sender === 'bot' ? '🌚' : '👤'; // Bot ke liye moon, user ke liye human
+        avatar.innerText = sender === 'bot' ? '🌚' : '👤'; 
 
         const msgBubble = document.createElement('div');
         msgBubble.className = 'message';
@@ -116,7 +116,6 @@
         const userText = inputField.value.trim();
         if (!userText) return;
 
-        // User ka message (👤)
         addMessage(userText, 'user');
         inputField.value = '';
         typingStatus.style.display = 'block';
@@ -129,7 +128,6 @@
         .then(data => {
             typingStatus.style.display = 'none';
             let reply = data.reply || "Abe lallu, system hang ho gaya, dobara bol!";
-            // Bot ka message (🌚)
             addMessage(reply, 'bot');
         })
         .catch(error => {
@@ -140,4 +138,3 @@
 </script>
 </body>
 </html>
-
