@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shaquib AI | Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+        body { background: #000000; color: #fff; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        .chat-container { width: 100%; max-width: 500px; height: 100%; display: flex; flex-direction: column; position: relative; background: #000; }
+        
+        /* Snapchat Style Header */
+        .header { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid #1a1a1a; background: #000; z-index: 10; }
+        .header-avatar { width: 45px; height: 45px; background: #1a1a1a; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; margin-right: 15px; border: 1px solid #333; }
+        .header-info { display: flex; flex-direction: column; }
+        .header-info h1 { font-size: 1.2rem; font-weight: 500; letter-spacing: 0.5px; }
+        .header-info p { font-size: 0.8rem; color: #888; display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+        .status-dot { width: 8px; height: 8px; background-color: #00ff00; border-radius: 50%; box-shadow: 0 0 5px #00ff00; }
+
+        /* Chat Area */
+        #chat-box { flex: 1; padding: 20px 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+        #chat-box::-webkit-scrollbar { display: none; }
+
+        /* Message Structure */
+        .msg-wrapper { display: flex; align-items: flex-end; gap: 10px; max-width: 85%; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .msg-wrapper.bot { align-self: flex-start; }
+        .msg-wrapper.user { align-self: flex-end; flex-direction: row-reverse; }
+
+        /* Snapchat Avatar Icons */
+        .avatar { width: 30px; height: 30px; border-radius: 50%; background: #1a1a1a; display: flex; justify-content: center; align-items: center; font-size: 16px; flex-shrink: 0; border: 1px solid #333; }
+        
+        /* Message Bubbles */
+        .message { padding: 12px 18px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+        
+        /* Bot Message (Snapchat Gray) */
+        .bot .message { background: #262628; border-radius: 20px 20px 20px 4px; color: #fff; }
+        
+        /* User Message (Snapchat Red) */
+        .user .message { background: #e00000; border-radius: 20px 20px 4px 20px; color: #fff; box-shadow: 0 2px 10px rgba(224, 0, 0, 0.2); }
+
+        .typing { font-size: 0.8rem; color: #888; margin: 0 20px 10px; display: none; font-style: italic; }
+
+        /* Snapchat Style Input Area */
+        .input-area { padding: 10px 15px 20px; background: #000; display: flex; align-items: center; border-top: 1px solid #1a1a1a; }
+        .input-box { flex: 1; display: flex; align-items: center; background: #262628; border-radius: 30px; padding: 5px 15px; gap: 10px; }
+        input { flex: 1; background: transparent; border: none; padding: 12px 0; color: white; outline: none; font-size: 1rem; }
+        input::placeholder { color: #888; }
+        
+        /* Send Button */
+        button { background: transparent; border: none; color: #ff0000; font-size: 1.5rem; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        button:active { transform: scale(0.85); }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="header">
+        <div class="header-avatar">🌚</div>
+        <div class="header-info">
+            <h1>Shaquib AI</h1>
+            <p><span class="status-dot"></span> Online</p>
+        </div>
+    </div>
+
+    <div id="chat-box">
+        <div class="msg-wrapper bot">
+            <div class="avatar">🌚</div>
+            <div class="message">Bol bhai, aaj kya bakchodi pelni hai? 🙄</div>
+        </div>
+    </div>
+    
+    <div id="typing-status" class="typing">Shaquib AI type kar raha hai...</div>
+
+    <form class="input-area" id="chat-form">
+        <div class="input-box">
+            <input type="text" id="user-input" placeholder="Yahan bakchodi kar..." autocomplete="off">
+            <button type="submit">➤</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // TERA NAYA GOOGLE SCRIPT LINK
+    const scriptURL = "https://script.google.com/macros/s/AKfycbz-RF-BT4ne3EiruSOmeUZT0r6M3aGRwCWefrGzjHbqeJapdk7LN6N_txnsYSvTPjjc/exec";
+    
+    const form = document.getElementById('chat-form');
+    const chatBox = document.getElementById('chat-box');
+    const typingStatus = document.getElementById('typing-status');
+
+    // Naya function avatar aur Snapchat bubble ke sath
+    function addMessage(text, sender) {
+        const wrapper = document.createElement('div');
+        wrapper.className = `msg-wrapper ${sender}`;
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerText = sender === 'bot' ? '🌚' : '👤'; // Bot ke liye moon, user ke liye human
+
+        const msgBubble = document.createElement('div');
+        msgBubble.className = 'message';
+        msgBubble.innerText = text;
+
+        wrapper.appendChild(avatar);
+        wrapper.appendChild(msgBubble);
+        
+        chatBox.appendChild(wrapper);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        const inputField = document.getElementById('user-input');
+        const userText = inputField.value.trim();
+        if (!userText) return;
+
+        // User ka message (👤)
+        addMessage(userText, 'user');
+        inputField.value = '';
+        typingStatus.style.display = 'block';
+
+        fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify({ message: userText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            typingStatus.style.display = 'none';
+            let reply = data.reply || "Abe lallu, system hang ho gaya, dobara bol!";
+            // Bot ka message (🌚)
+            addMessage(reply, 'bot');
+        })
+        .catch(error => {
+            typingStatus.style.display = 'none';
+            addMessage("Shaquib AI abhi thak gaya hai, baad mein aana.", 'bot');
+        });
+    });
+</script>
+</body>
+</html>
+
