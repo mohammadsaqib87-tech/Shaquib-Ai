@@ -18,7 +18,7 @@
         #chat-box { flex: 1; padding: 20px 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
         #chat-box::-webkit-scrollbar { display: none; }
         .msg-wrapper { display: flex; align-items: flex-end; gap: 10px; max-width: 85%; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; opacity: 1; transform: translateY(0); } }
         .msg-wrapper.bot { align-self: flex-start; }
         .msg-wrapper.user { align-self: flex-end; flex-direction: row-reverse; }
         .avatar { width: 30px; height: 30px; border-radius: 50%; background: #1a1a1a; display: flex; justify-content: center; align-items: center; font-size: 16px; flex-shrink: 0; border: 1px solid #333; }
@@ -63,7 +63,7 @@
 </div>
 
 <script>
-    // 🔥 TERI NAYI GOOGLE SCRIPT LINK YAHAN HAI 🔥
+    // 🔥 TERI NAYI GOOGLE SCRIPT LINK 🔥
     const scriptURL = "https://script.google.com/macros/s/AKfycbxXiuwatQr2nVGpWhCP_dIbdP7shG3CmeGuTCCsHi0tdjqJZ7q7R-dtT1NU_3xQG9bY/exec";
     
     const form = document.getElementById('chat-form');
@@ -83,21 +83,8 @@
         wrapper.appendChild(avatar);
         wrapper.appendChild(msgBubble);
         chatBox.appendChild(wrapper);
-        scrollToBottom();
+        chatBox.scrollTop = chatBox.scrollHeight;
     }
-
-    function scrollToBottom() {
-        setTimeout(() => {
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }, 100);
-    }
-
-    inputField.addEventListener('focus', () => {
-        setTimeout(() => {
-            window.scrollTo(0, document.body.scrollHeight);
-            scrollToBottom();
-        }, 300);
-    });
 
     form.addEventListener('submit', e => {
         e.preventDefault();
@@ -107,34 +94,29 @@
         addMessage(userText, 'user');
         inputField.value = '';
         typingStatus.style.display = 'block';
-        scrollToBottom();
 
+        // Direct request with improved error handling
         fetch(scriptURL, {
             method: 'POST',
-            mode: 'no-cors', // Ye cors issue ke liye hai
             body: JSON.stringify({ message: userText })
         })
-        .then(() => {
-            // No-cors mode mein response read nahi kar sakte, par message Google Sheet mein chala gaya hoga
-            // Isliye ek second baad reply fetch karne ka jugad laga sakte hain ya direct response ka wait
-            // Filhal default response fetch karte hain
-            fetch(scriptURL + "?getReply=true") // Maine script mein ye option nahi rakha par basic fetch chalega
-            .then(res => res.json())
-            .then(data => {
-                typingStatus.style.display = 'none';
-                addMessage(data.reply || "Abe lallu, system hang!", 'bot');
-            });
+        .then(res => res.json())
+        .then(data => {
+            typingStatus.style.display = 'none';
+            addMessage(data.reply || "Abe lallu, system hang!", 'bot');
         })
-        .catch(() => {
-            // Agar CORS issue aaye toh direct fetch try karo
+        .catch(error => {
+            // Agar CORS error aaye to ye alternative try karega
+            console.log("Retrying with fallback...");
             fetch(scriptURL, {
                 method: 'POST',
+                mode: 'no-cors',
                 body: JSON.stringify({ message: userText })
-            })
-            .then(res => res.json())
-            .then(data => {
-                typingStatus.style.display = 'none';
-                addMessage(data.reply, 'bot');
+            }).then(() => {
+                setTimeout(() => {
+                   typingStatus.style.display = 'none';
+                   addMessage("Message bhej diya hai, Sheet check kar lo ya page refresh karo.", 'bot');
+                }, 2000);
             });
         });
     });
